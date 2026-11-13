@@ -3,6 +3,21 @@
   "contactEmail": "info@city-c.net",
   "properties": [
     {
+      "id": "bukken-003",
+      "name": "平塚市片岡　売地",
+      "address": "平塚市片岡１１８８－５",
+      "price": "1280",
+      "status": "販売中",
+      "updatedAt": "2026-11-13T17:34:36+09:00",
+      "note": "",
+      "documents": [
+        {
+          "name": "販売図面（片岡）",
+          "url": "./documents/bukken-003-1794558843584.pdf"
+        }
+      ]
+    },
+    {
       "id": "bukken-002",
       "name": "小田原市田島",
       "address": "小田原市田島616番4",
