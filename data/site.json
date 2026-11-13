@@ -8,9 +8,14 @@
       "address": "足柄上郡松田町松田庶子1446－20",
       "price": "4,580万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T18:26:49+09:00",
+      "updatedAt": "2026-11-13T18:30:16+09:00",
       "note": "",
-      "documents": []
+      "documents": [
+        {
+          "name": "新松田町販売図面 (1)",
+          "url": "./documents/bukken-007-1794562212614.pdf"
+        }
+      ]
     },
     {
       "id": "bukken-006",
