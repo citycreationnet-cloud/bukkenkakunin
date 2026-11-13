@@ -8,14 +8,9 @@
       "address": "平塚市片岡１１８８－５",
       "price": "1280万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T17:36:28+09:00",
+      "updatedAt": "2026-11-13T17:53:04+09:00",
       "note": "",
-      "documents": [
-        {
-          "name": "販売図面（片岡）",
-          "url": "./documents/bukken-003-1794558843584.pdf"
-        }
-      ]
+      "documents": []
     },
     {
       "id": "bukken-002",
