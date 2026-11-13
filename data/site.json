@@ -3,6 +3,16 @@
   "contactEmail": "info@city-c.net",
   "properties": [
     {
+      "id": "bukken-009",
+      "name": "藤沢市西俣野　築浅戸建",
+      "address": "藤沢市西俣野306－12",
+      "price": "4,980万円",
+      "status": "販売中",
+      "updatedAt": "2026-11-13T18:36:04+09:00",
+      "note": "",
+      "documents": []
+    },
+    {
       "id": "bukken-008",
       "name": "足柄上郡中井町北田　築浅デザイナーズ平屋⼾建",
       "address": "足柄上郡中井町北田５２９－５",
