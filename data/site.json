@@ -3,6 +3,16 @@
   "contactEmail": "info@city-c.net",
   "properties": [
     {
+      "id": "bukken-008",
+      "name": "足柄上郡中井町北田　築浅デザイナーズ平屋⼾建",
+      "address": "足柄上郡中井町北田５２９－５",
+      "price": "4,500万円",
+      "status": "販売中",
+      "updatedAt": "2026-11-13T18:31:23+09:00",
+      "note": "",
+      "documents": []
+    },
+    {
       "id": "bukken-007",
       "name": "足柄上郡松⽥町庶⼦ 広々庭付き⼾建",
       "address": "足柄上郡松田町松田庶子1446－20",
