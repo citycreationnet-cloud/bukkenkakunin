@@ -27,6 +27,7 @@ textarea{resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:14p
 <header><b>物件管理（社内用）</b><button id="logout" class="hide">ログアウト</button></header>
 <main id="app"></main>
 <div id="msg" class="msg hide" role="status"></div>
+<script src="./lib/qrcode.js"></script>
 <script>
 'use strict';
 const DEFAULT_REPO='citycreationnet-cloud/bukkenkakunin',BRANCH='main',DATA_PATH='data/site.json';
@@ -68,11 +69,11 @@ function listView(){
   app.innerHTML=`<section class="card"><div class="row"><h2 style="margin:0">物件一覧（${site.properties.length}件）</h2><button id="add">＋ 物件を追加</button></div>
   <p class="muted">保存すると公開サイトに1〜数分で反映されます。物件IDとURLは、図面の印刷後は変更しないでください。</p></section>
   ${site.properties.map((p,i)=>`<section class="card"><div class="row"><div><span class="badge" data-s="${esc(p.status)}">${esc(p.status)}</span> <b>${esc(p.name)}</b><div class="muted">${esc(p.address)}｜${esc(p.price)}｜最終確認 ${esc((p.updatedAt||'').replace('T',' ').slice(0,16))}</div></div>
-  <div class="row"><select data-i="${i}" class="st" style="width:auto">${STATUSES.map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select><button class="sub ed" data-i="${i}">編集</button></div></div>
+  <div class="row"><select data-i="${i}" class="st" style="width:auto">${STATUSES.map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select><button class="sub qr" data-i="${i}">QRコード</button><button class="sub ed" data-i="${i}">編集</button></div></div>
   <div class="muted" style="margin-top:8px">公開URL：<code>${esc(base)}index.html?property=${encodeURIComponent(p.id)}</code> <button class="sub cp" data-u="${esc(base)}index.html?property=${encodeURIComponent(p.id)}" style="padding:2px 10px">コピー</button></div></section>`).join('')}
-  <section class="card"><h2>会社設定</h2><div class="two"><label>会社名<input id="cn" value="${esc(site.companyName)}"></label><label>内見・資料請求の受信メール<input id="ce" type="email" value="${esc(site.contactEmail)}"></label></div><button id="savecfg">会社設定を保存</button></section>
-  <section class="card"><h2>QRコードの作り方</h2><p class="muted">物件の公開URLを、お使いのQR作成ツールで変換してください。まとめて作る場合は、リポジトリの <code>tools/make_qr.py</code> を使えます。</p></section>`;
+  <section class="card"><h2>会社設定</h2><div class="two"><label>会社名<input id="cn" value="${esc(site.companyName)}"></label><label>内見・資料請求の受信メール<input id="ce" type="email" value="${esc(site.contactEmail)}"></label></div><button id="savecfg">会社設定を保存</button></section>`;
   $('#add').onclick=()=>editView(null);
+  app.querySelectorAll('.qr').forEach(b=>b.onclick=()=>qrView(+b.dataset.i,base));
   app.querySelectorAll('.ed').forEach(b=>b.onclick=()=>editView(+b.dataset.i));
   app.querySelectorAll('.cp').forEach(b=>b.onclick=()=>navigator.clipboard.writeText(b.dataset.u).then(()=>toast('URLをコピーしました')));
   app.querySelectorAll('.st').forEach(sel=>sel.onchange=async()=>{const p=site.properties[+sel.dataset.i],v=sel.value;sel.disabled=true;
@@ -81,6 +82,23 @@ function listView(){
   $('#savecfg').onclick=async()=>{const n=$('#cn').value.trim(),m=$('#ce').value.trim();
     if(!n)return toast('会社名を入力してください',1);if(m&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m))return toast('メールアドレスの形式が正しくありません',1);
     try{await mutate(d=>{d.companyName=n;d.contactEmail=m},'会社設定を更新');toast('保存しました')}catch(e){toast(errText(e),1)}}}
+
+function qrView(i,base){
+  const p=site.properties[i],url=`${base}index.html?property=${encodeURIComponent(p.id)}`;
+  const q=qrcode(0,'M');q.addData(url);q.make();const n=q.getModuleCount(),B=4,N=n+B*2;
+  let rects='';for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))rects+=`<rect x="${c+B}" y="${r+B}" width="1" height="1"/>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${N} ${N}" width="${N*10}" height="${N*10}" shape-rendering="crispEdges"><rect width="${N}" height="${N}" fill="#fff"/><g fill="#000">${rects}</g></svg>`;
+  app.innerHTML=`<section class="card" style="text-align:center"><div class="row"><h2 style="margin:0">QRコード</h2><button class="sub" id="back">← 一覧へ戻る</button></div>
+  <p><b>${esc(p.name)}</b></p><div id="qrbox" style="width:min(320px,90%);margin:10px auto;border:1px solid #dfe8e4">${svg.replace(/width="\d+" height="\d+"/,'width="100%"')}</div>
+  <p class="muted"><code>${esc(url)}</code></p>
+  <div class="row" style="justify-content:center"><button id="dlpng">PNGで保存</button><button class="sub" id="dlsvg">SVGで保存（印刷向け）</button><button class="sub" id="prt">印刷</button></div>
+  <p class="muted">販売図面に貼る前に、スマホで読み取って物件ページが開くことを確認してください。印刷後は物件IDとURLを変更しないでください。</p></section>`;
+  const dl=(blob,name)=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+  $('#back').onclick=listView;
+  $('#dlsvg').onclick=()=>dl(new Blob([svg],{type:'image/svg+xml'}),p.id+'.svg');
+  $('#dlpng').onclick=()=>{const S=12,cv=document.createElement('canvas');cv.width=cv.height=N*S;const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,cv.width,cv.height);x.fillStyle='#000';
+    for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))x.fillRect((c+B)*S,(r+B)*S,S,S);cv.toBlob(b=>dl(b,p.id+'.png'))};
+  $('#prt').onclick=()=>{const w=window.open('','_blank');if(!w)return toast('ポップアップがブロックされました',1);w.document.write(`<title>${esc(p.id)}</title><body style="text-align:center;font-family:sans-serif"><p>${esc(p.name)}</p><div style="width:60mm;margin:auto">${svg.replace(/width="\d+" height="\d+"/,'width="100%"')}</div><script>onload=()=>print()<\/script>`);w.document.close()}}
 
 function nextId(){const n=site.properties.map(p=>+(/^bukken-(\d+)$/.exec(p.id)||[])[1]||0);return 'bukken-'+String(Math.max(0,...n)+1).padStart(3,'0')}
 function editView(i){

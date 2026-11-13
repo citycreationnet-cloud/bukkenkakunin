@@ -23,7 +23,9 @@
 
 ## QRコード
 
-各物件のURLは `公開URL/index.html?property=物件ID` です。印刷後は物件IDと公開URLを変えないでください。まとめて作る場合：
+管理画面の物件一覧にある「QRコード」ボタンで、物件ごとのQRを表示し、PNG・SVGで保存または印刷できます（`lib/qrcode.js` は MIT ライセンスの qrcode-generator を同梱）。
+
+各物件のURLは `公開URL/index.html?property=物件ID` です。印刷後は物件IDと公開URLを変えないでください。まとめて作る場合は次のスクリプトも使えます：
 
 ```bash
 pip install segno
