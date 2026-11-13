@@ -8,9 +8,14 @@
       "address": "足柄上郡中井町北田５２９－５",
       "price": "4,500万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T18:31:23+09:00",
+      "updatedAt": "2026-11-13T18:34:53+09:00",
       "note": "",
-      "documents": []
+      "documents": [
+        {
+          "name": "中井町北田 図面 (1)",
+          "url": "./documents/bukken-008-1794562488841.pdf"
+        }
+      ]
     },
     {
       "id": "bukken-007",
