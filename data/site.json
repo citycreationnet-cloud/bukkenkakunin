@@ -8,9 +8,14 @@
       "address": "中郡大磯町生沢１０３５",
       "price": "3,200万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T17:56:31+09:00",
+      "updatedAt": "2026-11-13T18:00:51+09:00",
       "note": "鍵現地対応。",
-      "documents": []
+      "documents": [
+        {
+          "name": "販売図面（生沢）",
+          "url": "./documents/bukken-004-1794560446716.pdf"
+        }
+      ]
     },
     {
       "id": "bukken-003",
