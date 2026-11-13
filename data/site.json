@@ -8,9 +8,14 @@
       "address": "藤沢市西俣野306－12",
       "price": "4,980万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T18:36:04+09:00",
+      "updatedAt": "2026-11-13T18:37:25+09:00",
       "note": "",
-      "documents": []
+      "documents": [
+        {
+          "name": "藤沢市　西俣野 (1)",
+          "url": "./documents/bukken-009-1794562641897.pdf"
+        }
+      ]
     },
     {
       "id": "bukken-008",
