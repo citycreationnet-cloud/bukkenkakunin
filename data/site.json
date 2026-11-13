@@ -3,6 +3,21 @@
   "contactEmail": "info@city-c.net",
   "properties": [
     {
+      "id": "bukken-002",
+      "name": "小田原市田島",
+      "address": "小田原市田島616番4",
+      "price": "1980",
+      "status": "販売中",
+      "updatedAt": "2026-11-13T17:25:36+09:00",
+      "note": "鍵は当社にございます。\n内覧予約後、当日に当社へお越しください。",
+      "documents": [
+        {
+          "name": "販売図面（田島）",
+          "url": "./documents/bukken-002-1794558254598.pdf"
+        }
+      ]
+    },
+    {
       "id": "bukken-001",
       "name": "売戸建住宅 小田原市城山4丁目 リフォーム戸建（3LDK）",
       "address": "神奈川県小田原市城山4丁目",
