@@ -3,6 +3,16 @@
   "contactEmail": "info@city-c.net",
   "properties": [
     {
+      "id": "bukken-004",
+      "name": "中郡大磯町生沢　平屋の中古戸建",
+      "address": "中郡大磯町生沢１０３５",
+      "price": "3,200万円",
+      "status": "販売中",
+      "updatedAt": "2026-11-13T17:56:31+09:00",
+      "note": "鍵現地対応。",
+      "documents": []
+    },
+    {
       "id": "bukken-003",
       "name": "平塚市片岡　売地",
       "address": "平塚市片岡１１８８－５",
