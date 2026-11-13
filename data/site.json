@@ -16,14 +16,14 @@
       "id": "bukken-002",
       "name": "小田原市田島　中古戸建(5LDK)",
       "address": "小田原市田島616番4",
-      "price": "1980万円",
+      "price": "1,980万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T17:36:19+09:00",
+      "updatedAt": "2026-11-13T17:53:42+09:00",
       "note": "鍵は当社にございます。\n内覧予約後、当日に当社へお越しください。",
       "documents": [
         {
-          "name": "販売図面（田島）",
-          "url": "./documents/bukken-002-1794558254598.pdf"
+          "name": "info_sheet (1)",
+          "url": "./documents/bukken-002-1794560014103.pdf"
         }
       ]
     },
