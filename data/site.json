@@ -3,6 +3,16 @@
   "contactEmail": "info@city-c.net",
   "properties": [
     {
+      "id": "bukken-007",
+      "name": "足柄上郡松⽥町庶⼦ 広々庭付き⼾建",
+      "address": "足柄上郡松田町松田庶子1446－20",
+      "price": "4,580万円",
+      "status": "販売中",
+      "updatedAt": "2026-11-13T18:26:49+09:00",
+      "note": "",
+      "documents": []
+    },
+    {
       "id": "bukken-006",
       "name": "秦野市桜町 ⼤型⼆世帯＆事務所・倉庫付き住宅",
       "address": "秦野市桜町4－61",
