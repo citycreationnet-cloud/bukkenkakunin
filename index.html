@@ -10,48 +10,11 @@
 </head>
 <body><header id="brand">物件確認</header><main id="app"></main><footer>販売状況は最終更新日時をご確認ください。</footer>
 
-<!-- 公開する情報をここで編集してください。社内情報・パスワード・申請者情報は書かないでください。
-properties に物件を追加します。id は印刷後も変更しないでください。
-property URL: https://あなたの公開URL/index.html?property=物件のid
-status: 販売中 / 商談中 / 成約済 / 販売停止
-updatedAt: 最後に販売状況を確認した日時（日本時間の +09:00 を付ける）
-資料は同じリポジトリの documents/ にアップロードし、url に相対パスを設定します。
-
-物件1件の記入例（実在物件に書き換えて properties の [] 内へ貼り付け）：
-{
-  "id": "bukken-001",
-  "name": "物件名を入力",
-  "address": "所在地を入力",
-  "price": "価格を入力",
-  "status": "販売中",
-  "updatedAt": "2026-11-13T15:00:00+09:00",
-  "note": "内見時のご案内など",
-  "documents": [{"name": "販売図面", "url": "./documents/bukken-001.pdf"}]
-}
--->
-<script id="site-data" type="application/json">
-{
-  "companyName": "株式会社シティクリエイション",
-  "contactEmail": "info@city-c.net",
-  "properties": [
-    {
-      "id": "bukken-001",
-      "name": "売戸建住宅 小田原市城山4丁目 リフォーム戸建（3LDK）",
-      "address": "神奈川県小田原市城山4丁目",
-      "price": "3,880万円",
-      "status": "販売中",
-      "updatedAt": "2026-11-13T16:00:00+09:00",
-      "note": "木造2階建／土地 147.70㎡（実測）・建物 90.47㎡／築2003年9月／現況：空家／室内リフォーム済、駐車場土間打ち予定／見学可能です\nJR東海道新幹線・小田原駅 徒歩20分",
-      "documents": [{"name": "販売図面", "url": "./documents/bukken-001.pdf"}]
-    }
-  ]
-}
-</script>
 <script>
 'use strict';
 const app=document.getElementById('app');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let data;try{data=JSON.parse(document.getElementById('site-data').textContent)}catch{app.innerHTML='<section class="card"><h1>設定を確認してください</h1><p>物件データの書式が正しくありません。</p></section>';throw Error('Invalid site data')}
+async function main(){let data;try{const r=await fetch('./data/site.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;data=await r.json()}catch{app.innerHTML='<section class="card"><h1>読み込めませんでした</h1><p>時間をおいて再度お試しください。</p></section>';return}
 document.getElementById('brand').textContent=data.companyName||'物件確認';
 const props=Array.isArray(data.properties)?data.properties:[],statuses=['販売中','商談中','成約済','販売停止'];
 const id=new URLSearchParams(location.search).get('property');
@@ -59,7 +22,7 @@ function time(x){const d=new Date(x);return Number.isNaN(d.valueOf())?'未設定
 function status(p,large=false){const s=statuses.includes(p.status)?p.status:'状況未確認';return `<span class="status ${large?'large':''}" data-status="${esc(s)}">${esc(s)}</span>`}
 function safeUrl(raw){try{const url=new URL(raw,location.href);return ['https:','http:'].includes(url.protocol)||(location.protocol==='file:'&&url.protocol==='file:')?url.href:null}catch{return null}}
 function render(){
-if(!id){app.innerHTML=`<h1>物件の販売状況</h1><p class="muted">物件を選ぶと、最新の販売状況・資料・内見依頼をご確認いただけます。</p>${props.length?props.map(p=>`<section class="card"><div class="row"><div>${status(p)}<h2 style="margin:12px 0 4px">${esc(p.name)}</h2><p class="muted">${esc(p.address)}</p><strong>${esc(p.price)}</strong></div><a class="button" href="?property=${encodeURIComponent(p.id)}">物件を確認する</a></div></section>`).join(''):'<section class="card"><h2>公開中の物件はありません</h2><p class="muted">管理者の方へ：このHTMLの「site-data」に物件情報と連絡先メールを設定してください。</p></section>'}`;return}
+if(!id){app.innerHTML=`<h1>物件の販売状況</h1><p class="muted">物件を選ぶと、最新の販売状況・資料・内見依頼をご確認いただけます。</p>${props.length?props.map(p=>`<section class="card"><div class="row"><div>${status(p)}<h2 style="margin:12px 0 4px">${esc(p.name)}</h2><p class="muted">${esc(p.address)}</p><strong>${esc(p.price)}</strong></div><a class="button" href="?property=${encodeURIComponent(p.id)}">物件を確認する</a></div></section>`).join(''):'<section class="card"><h2>公開中の物件はありません</h2><p class="muted">管理者の方へ：管理画面（admin.html）から物件を登録してください。</p></section>'}`;return}
 const p=props.find(p=>p.id===id);if(!p){app.innerHTML='<section class="card"><h1>物件が見つかりません</h1><p>URLをご確認いただくか、図面の発行元へお問い合わせください。</p><a href="?">物件一覧へ</a></section>';return}
 document.title=p.name+'｜販売状況・内見依頼';
 const docs=(p.documents||[]).map(d=>({name:d.name,url:safeUrl(d.url)})).filter(d=>d.url);
@@ -69,4 +32,6 @@ const form=document.getElementById('request');if(form)form.addEventListener('sub
 const df=document.getElementById('docreq');if(df)df.addEventListener('submit',e=>{e.preventDefault();const b=Object.fromEntries(new FormData(df));const body=`資料請求\n\n物件名：${p.name}\n物件ID：${p.id}\n会社名：${b.company}\n担当者：${b.person}\n電話：${b.phone}\nメール：${b.email}\nご希望の資料・連絡事項：${b.message||'なし'}\n\n物件ページ：${location.href}\n個人情報の利用目的に同意済み`;location.href='mailto:'+email+'?subject='+encodeURIComponent('【資料請求】'+p.name)+'&body='+encodeURIComponent(body);document.getElementById('docresult').textContent='メールアプリで送信を完了してください。このページでは送信完了を確認できません。'});
 }
 render();
+}
+main();
 </script></body></html>
