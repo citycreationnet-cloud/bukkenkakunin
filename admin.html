@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>物件管理（社内用）</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:15px/1.7 system-ui,'Yu Gothic',sans-serif;background:#f3f6f5;color:#203a3d}
+header{background:#176b60;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+header b{font-size:18px}main{max-width:960px;margin:25px auto;padding:0 16px}
+.card{background:#fff;border:1px solid #dfe8e4;border-radius:12px;padding:20px;margin-bottom:16px}
+h2{font-size:18px;margin:0 0 12px}.muted{color:#6b7f80;font-size:13px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+button,.btn{background:#176b60;color:#fff;border:0;border-radius:8px;padding:9px 16px;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}
+button.sub{background:#e4efec;color:#176b60}button.danger{background:#fff;color:#a33737;border:1px solid #d9b3b3}button:disabled{opacity:.5;cursor:wait}
+header button{background:#fff;color:#176b60}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0}input,textarea,select{display:block;width:100%;margin-top:4px;padding:9px;border:1px solid #cbdad5;border-radius:7px;font:inherit;background:#fff}
+textarea{resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.badge{display:inline-block;border-radius:20px;padding:2px 14px;font-weight:700;background:#e5f3ec;color:#1b7250}
+.badge[data-s="商談中"]{background:#fff0d4;color:#906116}.badge[data-s="成約済"],.badge[data-s="販売停止"]{background:#eaedef;color:#657578}
+.doc{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border-top:1px solid #e3eae7;padding:8px 0}
+.msg{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#203a3d;color:#fff;padding:10px 20px;border-radius:10px;max-width:90%;z-index:9}
+.msg.err{background:#a33737}.hide{display:none}code{background:#eef3f1;padding:1px 6px;border-radius:4px;word-break:break-all}
+@media(max-width:600px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><b>物件管理（社内用）</b><button id="logout" class="hide">ログアウト</button></header>
+<main id="app"></main>
+<div id="msg" class="msg hide" role="status"></div>
+<script>
+'use strict';
+const DEFAULT_REPO='citycreationnet-cloud/bukkenkakunin',BRANCH='main',DATA_PATH='data/site.json';
+const STATUSES=['販売中','商談中','成約済','販売停止'];
+const $=s=>document.querySelector(s),app=$('#app');
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let cfg={repo:localStorage.getItem('bk_repo')||DEFAULT_REPO,token:localStorage.getItem('bk_token')||''};
+let site=null,editing=null;
+function toast(t,err){const m=$('#msg');m.textContent=t;m.className='msg'+(err?' err':'');clearTimeout(toast.t);toast.t=setTimeout(()=>m.className='msg hide',err?6000:3000)}
+const nowJst=()=>new Date(Date.now()+9*3600e3).toISOString().slice(0,19)+'+09:00';
+const b64=s=>{const b=new TextEncoder().encode(s);let r='';b.forEach(c=>r+=String.fromCharCode(c));return btoa(r)};
+const unb64=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0)));
+async function gh(path,opt={}){
+  const r=await fetch(`https://api.github.com/repos/${cfg.repo}/contents/${path.split('/').map(encodeURIComponent).join('/')}${opt.method==='PUT'?'':'?ref='+BRANCH+'&t='+Date.now()}`,{...opt,cache:'no-store',headers:{Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json','Content-Type':'application/json'}});
+  if(!r.ok){const e=new Error('GitHub '+r.status);e.status=r.status;throw e}
+  return r.json()}
+async function loadSite(){const f=await gh(DATA_PATH);const d=JSON.parse(unb64(f.content));d.properties=Array.isArray(d.properties)?d.properties:[];return{data:d,sha:f.sha}}
+// 最新を取得 → 変更を適用 → 保存。他の人の変更を上書きしないよう毎回最新から作る。
+async function mutate(fn,message,retry=1){
+  const {data,sha}=await loadSite();fn(data);
+  try{await gh(DATA_PATH,{method:'PUT',body:JSON.stringify({message,content:b64(JSON.stringify(data,null,2)+'\n'),sha,branch:BRANCH})});site=data}
+  catch(e){if((e.status===409||e.status===422)&&retry>0)return mutate(fn,message,retry-1);throw e}}
+function errText(e){return e.status===401?'認証に失敗しました。トークンを確認してください。':e.status===403||e.status===404?'権限がありません。トークンの権限（Contents: 読み書き）とリポジトリを確認してください。':e.status===409||e.status===422?'他の人の更新と衝突しました。画面を再読み込みしてやり直してください。':'保存できませんでした：'+e.message}
+
+function loginView(){
+  $('#logout').classList.add('hide');
+  app.innerHTML=`<section class="card"><h2>ログイン</h2><p class="muted">GitHubのアクセストークン（Fine-grained token、対象リポジトリのみ・Contents: Read and write）を入力してください。トークンはこの端末のブラウザにのみ保存され、共有端末では使わないでください。</p>
+  <label>リポジトリ（所有者/名前）<input id="repo" value="${esc(cfg.repo)}"></label>
+  <label>アクセストークン<input id="token" type="password" autocomplete="off" placeholder="github_pat_..."></label>
+  <button id="login">ログイン</button></section>`;
+  $('#login').onclick=async()=>{cfg.repo=$('#repo').value.trim();cfg.token=$('#token').value.trim();
+    if(!cfg.token)return toast('トークンを入力してください',1);
+    try{site=(await loadSite()).data;localStorage.setItem('bk_repo',cfg.repo);localStorage.setItem('bk_token',cfg.token);listView()}
+    catch(e){toast(errText(e),1)}}}
+
+function listView(){
+  editing=null;$('#logout').classList.remove('hide');
+  const base=location.href.replace(/admin\.html.*$/,'').replace(/[?#].*$/,'');
+  app.innerHTML=`<section class="card"><div class="row"><h2 style="margin:0">物件一覧（${site.properties.length}件）</h2><button id="add">＋ 物件を追加</button></div>
+  <p class="muted">保存すると公開サイトに1〜数分で反映されます。物件IDとURLは、図面の印刷後は変更しないでください。</p></section>
+  ${site.properties.map((p,i)=>`<section class="card"><div class="row"><div><span class="badge" data-s="${esc(p.status)}">${esc(p.status)}</span> <b>${esc(p.name)}</b><div class="muted">${esc(p.address)}｜${esc(p.price)}｜最終確認 ${esc((p.updatedAt||'').replace('T',' ').slice(0,16))}</div></div>
+  <div class="row"><select data-i="${i}" class="st" style="width:auto">${STATUSES.map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select><button class="sub ed" data-i="${i}">編集</button></div></div>
+  <div class="muted" style="margin-top:8px">公開URL：<code>${esc(base)}index.html?property=${encodeURIComponent(p.id)}</code> <button class="sub cp" data-u="${esc(base)}index.html?property=${encodeURIComponent(p.id)}" style="padding:2px 10px">コピー</button></div></section>`).join('')}
+  <section class="card"><h2>会社設定</h2><div class="two"><label>会社名<input id="cn" value="${esc(site.companyName)}"></label><label>内見・資料請求の受信メール<input id="ce" type="email" value="${esc(site.contactEmail)}"></label></div><button id="savecfg">会社設定を保存</button></section>
+  <section class="card"><h2>QRコードの作り方</h2><p class="muted">物件の公開URLを、お使いのQR作成ツールで変換してください。まとめて作る場合は、リポジトリの <code>tools/make_qr.py</code> を使えます。</p></section>`;
+  $('#add').onclick=()=>editView(null);
+  app.querySelectorAll('.ed').forEach(b=>b.onclick=()=>editView(+b.dataset.i));
+  app.querySelectorAll('.cp').forEach(b=>b.onclick=()=>navigator.clipboard.writeText(b.dataset.u).then(()=>toast('URLをコピーしました')));
+  app.querySelectorAll('.st').forEach(sel=>sel.onchange=async()=>{const p=site.properties[+sel.dataset.i],v=sel.value;sel.disabled=true;
+    try{await mutate(d=>{const t=d.properties.find(x=>x.id===p.id);if(!t)throw Error('物件が見つかりません');t.status=v;t.updatedAt=nowJst()},`販売状況を更新：${p.id} → ${v}`);toast('販売状況を「'+v+'」に更新しました');listView()}
+    catch(e){toast(errText(e),1);listView()}});
+  $('#savecfg').onclick=async()=>{const n=$('#cn').value.trim(),m=$('#ce').value.trim();
+    if(!n)return toast('会社名を入力してください',1);if(m&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m))return toast('メールアドレスの形式が正しくありません',1);
+    try{await mutate(d=>{d.companyName=n;d.contactEmail=m},'会社設定を更新');toast('保存しました')}catch(e){toast(errText(e),1)}}}
+
+function nextId(){const n=site.properties.map(p=>+(/^bukken-(\d+)$/.exec(p.id)||[])[1]||0);return 'bukken-'+String(Math.max(0,...n)+1).padStart(3,'0')}
+function editView(i){
+  const isNew=i===null,p=isNew?{id:nextId(),name:'',address:'',price:'',status:'販売中',note:'',documents:[]}:structuredClone(site.properties[i]);
+  p.documents=p.documents||[];editing=p;
+  const draw=()=>{app.innerHTML=`<section class="card"><div class="row"><h2 style="margin:0">${isNew?'物件を追加':'物件を編集'}</h2><span class="muted">物件ID：${esc(p.id)}</span></div>
+  <label>物件名 <small>必須</small><input id="f_name" value="${esc(p.name)}" maxlength="120"></label>
+  <label>所在地<input id="f_address" value="${esc(p.address)}" maxlength="120"></label>
+  <div class="two"><label>価格<input id="f_price" value="${esc(p.price)}" placeholder="例：3,880万円" maxlength="60"></label>
+  <label>販売状況<select id="f_status">${STATUSES.map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select></label></div>
+  <label>案内・備考（公開されます）<textarea id="f_note" rows="4" maxlength="800">${esc(p.note)}</textarea></label>
+  <h2 style="margin-top:20px">公開する資料</h2>
+  ${p.documents.map((d,k)=>`<div class="doc"><div><input class="dn" data-k="${k}" value="${esc(d.name)}"><div class="muted">${esc(d.url)}</div></div><button class="danger dd" data-k="${k}">削除</button></div>`).join('')||'<p class="muted">資料はありません。</p>'}
+  <label>PDF・画像を追加（25MBまで）<input id="f_file" type="file" accept="application/pdf,image/*"></label>
+  <label style="font-weight:400"><input id="f_touch" type="checkbox" checked style="display:inline;width:auto"> 最終確認日時を現在に更新する</label>
+  <div class="row" style="margin-top:14px"><div><button id="save">保存</button> <button class="sub" id="cancel">キャンセル</button></div>${isNew?'':'<button class="danger" id="del">この物件を削除</button>'}</div>
+  <p class="muted">成約・販売終了の場合は削除せず、販売状況を「成約済」「販売停止」にしてください（印刷済みQRの行き先が残ります）。</p></section>`;
+  const sync=()=>{p.name=$('#f_name').value;p.address=$('#f_address').value;p.price=$('#f_price').value;p.status=$('#f_status').value;p.note=$('#f_note').value;app.querySelectorAll('.dn').forEach(e=>p.documents[+e.dataset.k].name=e.value)};
+  app.querySelectorAll('.dd').forEach(b=>b.onclick=()=>{sync();p.documents.splice(+b.dataset.k,1);draw()});
+  $('#cancel').onclick=listView;
+  $('#f_file').onchange=async e=>{const f=e.target.files[0];if(!f)return;sync();
+    if(f.size>25*1024*1024)return toast('ファイルが大きすぎます（25MBまで）',1);
+    const ext=(/\.(pdf|png|jpe?g|webp)$/i.exec(f.name)||[])[1];if(!ext)return toast('PDF・画像（png/jpg/webp）のみ追加できます',1);
+    toast('アップロード中…');
+    try{const buf=await f.arrayBuffer();let bin='';const u=new Uint8Array(buf);for(let o=0;o<u.length;o+=0x8000)bin+=String.fromCharCode.apply(null,u.subarray(o,o+0x8000));
+      const path=`documents/${p.id}-${Date.now()}.${ext.toLowerCase()}`;
+      await gh(path,{method:'PUT',body:JSON.stringify({message:`資料を追加：${p.id}`,content:btoa(bin),branch:BRANCH})});
+      p.documents.push({name:f.name.replace(/\.[^.]+$/,''),url:'./'+path});toast('アップロードしました。「保存」で確定します');draw()}
+    catch(er){toast(errText(er),1)}};
+  $('#save').onclick=async()=>{sync();if(!p.name.trim())return toast('物件名を入力してください',1);
+    if(p.documents.some(d=>!d.name.trim()))return toast('資料名を入力してください',1);
+    const touch=$('#f_touch').checked;$('#save').disabled=true;
+    const out={id:p.id,name:p.name.trim(),address:p.address.trim(),price:p.price.trim(),status:p.status,updatedAt:touch||isNew?nowJst():(p.updatedAt||nowJst()),note:p.note.trim(),documents:p.documents.map(d=>({name:d.name.trim(),url:d.url}))};
+    try{await mutate(d=>{const k=d.properties.findIndex(x=>x.id===out.id);if(k>=0)d.properties[k]=out;else d.properties.unshift(out)},(isNew?'物件を追加：':'物件を更新：')+out.id);toast('保存しました（公開サイトへの反映に数分かかります）');listView()}
+    catch(er){toast(errText(er),1);$('#save').disabled=false}};
+  const del=$('#del');if(del)del.onclick=async()=>{if(!confirm(`「${p.name}」を削除します。印刷済みのQRは「物件が見つかりません」になります。よろしいですか？`))return;
+    try{await mutate(d=>{d.properties=d.properties.filter(x=>x.id!==p.id)},'物件を削除：'+p.id);toast('削除しました');listView()}catch(er){toast(errText(er),1)}};
+  };draw()}
+
+$('#logout').onclick=()=>{localStorage.removeItem('bk_token');cfg.token='';loginView()};
+(async()=>{if(!cfg.token)return loginView();try{site=(await loadSite()).data;listView()}catch(e){toast(errText(e),1);loginView()}})();
+</script>
+</body>
+</html>
