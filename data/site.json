@@ -3,6 +3,16 @@
   "contactEmail": "info@city-c.net",
   "properties": [
     {
+      "id": "bukken-006",
+      "name": "秦野市桜町 ⼤型⼆世帯＆事務所・倉庫付き住宅",
+      "address": "秦野市桜町4－61",
+      "price": "3,980万円",
+      "status": "販売中",
+      "updatedAt": "2026-11-13T18:17:32+09:00",
+      "note": "",
+      "documents": []
+    },
+    {
       "id": "bukken-005",
       "name": "小田原市田島　売地(古屋付き)",
       "address": "小田原市田島５４－６",
