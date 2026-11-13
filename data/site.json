@@ -8,9 +8,14 @@
       "address": "秦野市桜町4－61",
       "price": "3,980万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T18:17:32+09:00",
+      "updatedAt": "2026-11-13T18:19:28+09:00",
       "note": "",
-      "documents": []
+      "documents": [
+        {
+          "name": "桜町　図面 (1) (1)",
+          "url": "./documents/bukken-006-1794561562564.pdf"
+        }
+      ]
     },
     {
       "id": "bukken-005",
