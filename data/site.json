@@ -3,6 +3,16 @@
   "contactEmail": "info@city-c.net",
   "properties": [
     {
+      "id": "bukken-005",
+      "name": "小田原市田島　売地(古屋付き)",
+      "address": "小田原市田島５４－６",
+      "price": "1,980万円",
+      "status": "販売中",
+      "updatedAt": "2026-11-13T18:08:19+09:00",
+      "note": "",
+      "documents": []
+    },
+    {
       "id": "bukken-004",
       "name": "中郡大磯町生沢　平屋の中古戸建",
       "address": "中郡大磯町生沢１０３５",
