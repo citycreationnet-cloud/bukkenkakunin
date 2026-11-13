@@ -8,9 +8,14 @@
       "address": "小田原市田島５４－６",
       "price": "1,980万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T18:08:19+09:00",
+      "updatedAt": "2026-11-13T18:11:00+09:00",
       "note": "",
-      "documents": []
+      "documents": [
+        {
+          "name": "販売図面（田島・野木様1980②） (1)",
+          "url": "./documents/bukken-005-1794561055477.pdf"
+        }
+      ]
     },
     {
       "id": "bukken-004",
