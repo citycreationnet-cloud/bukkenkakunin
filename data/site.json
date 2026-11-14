@@ -8,12 +8,36 @@
       "address": "藤沢市西俣野306－12",
       "price": "4,980万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T18:37:25+09:00",
+      "updatedAt": "2026-11-14T09:33:42+09:00",
       "note": "",
       "documents": [
         {
           "name": "藤沢市　西俣野 (1)",
           "url": "./documents/bukken-009-1794562641897.pdf"
+        },
+        {
+          "name": "建物全部事項",
+          "url": "./documents/bukken-009-1794616387276.pdf"
+        },
+        {
+          "name": "建物図面",
+          "url": "./documents/bukken-009-1794616391416.pdf"
+        },
+        {
+          "name": "公図",
+          "url": "./documents/bukken-009-1794616398541.pdf"
+        },
+        {
+          "name": "測量図",
+          "url": "./documents/bukken-009-1794616403109.pdf"
+        },
+        {
+          "name": "土地全部事項",
+          "url": "./documents/bukken-009-1794616408172.pdf"
+        },
+        {
+          "name": "西俣野　役所調査資料",
+          "url": "./documents/bukken-009-1794616414184.pdf"
         }
       ]
     },
