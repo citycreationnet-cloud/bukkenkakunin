@@ -122,9 +122,30 @@
       "address": "平塚市片岡１１８８－５",
       "price": "1,280万円",
       "status": "販売中",
-      "updatedAt": "2026-11-13T17:53:18+09:00",
+      "updatedAt": "2026-11-16T10:36:37+09:00",
       "note": "",
-      "documents": []
+      "documents": [
+        {
+          "name": "平塚市片岡１１８８－５不動産登記（土地全部事項）2026030200375030",
+          "url": "./documents/bukken-003-1794792919966.pdf"
+        },
+        {
+          "name": "平塚市片岡１１８８－５不動産登記（地図）2025110600984551",
+          "url": "./documents/bukken-003-1794792926102.pdf"
+        },
+        {
+          "name": "現況実測図",
+          "url": "./documents/bukken-003-1794792938370.pdf"
+        },
+        {
+          "name": "水道台帳",
+          "url": "./documents/bukken-003-1794792943939.pdf"
+        },
+        {
+          "name": "記載事項証明書(擁壁)",
+          "url": "./documents/bukken-003-1794792964145.pdf"
+        }
+      ]
     },
     {
       "id": "bukken-002",
