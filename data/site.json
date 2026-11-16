@@ -138,7 +138,7 @@
       "address": "平塚市片岡１１８８－５",
       "price": "1,280万円",
       "status": "販売中",
-      "updatedAt": "2026-11-16T10:36:37+09:00",
+      "updatedAt": "2026-11-16T11:48:10+09:00",
       "note": "",
       "documents": [
         {
@@ -160,6 +160,10 @@
         {
           "name": "記載事項証明書(擁壁)",
           "url": "./documents/bukken-003-1794792964145.pdf"
+        },
+        {
+          "name": "info_sheet",
+          "url": "./documents/bukken-003-1794797284111.pdf"
         }
       ]
     },
